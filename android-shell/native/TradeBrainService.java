@@ -11,7 +11,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 
-/** Foreground service: shows a "SwarmDesk is running" notification and holds a CPU wake lock while auto-trading is on. */
+/** Foreground service: shows a "Jump Scalper is running" notification and holds a CPU wake lock while auto-trading is on. */
 public class TradeBrainService extends Service {
     private PowerManager.WakeLock wl;
 
@@ -24,7 +24,7 @@ public class TradeBrainService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         String channelId = "tradebrain_running";
         if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel ch = new NotificationChannel(channelId, "SwarmDesk running", NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel ch = new NotificationChannel(channelId, "Jump Scalper running", NotificationManager.IMPORTANCE_LOW);
             NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (nm != null) nm.createNotificationChannel(ch);
         }
@@ -33,7 +33,7 @@ public class TradeBrainService extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, channelId) : new Notification.Builder(this);
         Notification n = b
-                .setContentTitle("SwarmDesk is running")
+                .setContentTitle("Jump Scalper is running")
                 .setContentText("Auto-trading is on. Tap to open.")
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
                 .setContentIntent(pi)
@@ -47,7 +47,7 @@ public class TradeBrainService extends Service {
         if (wl == null) {
             PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
             if (pm != null) {
-                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SwarmDesk:running");
+                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Jump Scalper:running");
                 wl.setReferenceCounted(false);
                 wl.acquire(12L * 60L * 60L * 1000L);
             }

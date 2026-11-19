@@ -54,7 +54,7 @@ jobs:
           s = s.replace("</manifest>", perms + "</manifest>", 1)
           open(p, "w").write(s)
           PY
-          grep -q TradeBrainService android/app/src/main/AndroidManifest.xml || { echo "::error::manifest patch failed"; exit 1; }
+          grep -q "TradeBrainService" android/app/src/main/AndroidManifest.xml || { echo "::error::manifest patch failed"; exit 1; }
 
       - name: Brand the icon and copy the app in
         working-directory: android-shell
@@ -74,18 +74,18 @@ jobs:
         run: |
           APK=$(find android/app/build/outputs/apk -name '*.apk' | head -n 1)
           test -n "$APK"
-          cp "$APK" SwarmDesk.apk
-          ls -la SwarmDesk.apk
+          cp "$APK" Jump-Scalper.apk
+          ls -la Jump-Scalper.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SwarmDesk-Android
-          path: android-shell/SwarmDesk.apk
+          name: Jump-Scalper-Android
+          path: android-shell/Jump-Scalper.apk
           if-no-files-found: error
 
       - name: Publish to the "latest" release
         continue-on-error: true
         env: { GH_TOKEN: "${{ github.token }}" }
         run: |
-          gh release view latest >/dev/null 2>&1 || gh release create latest --title "SwarmDesk - latest build" --notes "Rolling build from the main branch. Android: the .apk (standalone, no server). Windows: the portable .exe." --target "${{ github.sha }}" || true
-          gh release upload latest android-shell/SwarmDesk.apk --clobber
+          gh release view latest >/dev/null 2>&1 || gh release create latest --title "Jump Scalper - latest build" --notes "Rolling build from the main branch. Android: the .apk (standalone, no server). Windows: the portable .exe." --target "${{ github.sha }}" || true
+          gh release upload latest android-shell/Jump-Scalper.apk --clobber

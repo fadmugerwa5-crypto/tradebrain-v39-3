@@ -1,36 +1,17 @@
-# TradeBrain v39 — Watchtower + Radar preservation build
+# Jump Scalper — live-candle pullback
 
-This is a source-code upgrade of the existing TradeBrain v38.4 project, not a replacement application. The original non-AI Scalp Radar remains a separate market discovery/ranking system. A new persistent Opportunity Watchtower is added alongside it.
+Demo-only Deriv scalper. **Scalp the pullback inside the live candle.**
 
-## Changes implemented in this source package
+- **Basket mode (default): buy the dump, close the whole stack on the bounce.** When a live candle spikes (bigger than a typical candle) and price dumps to the candle's low and ticks back up, the bot opens several entries at once (default 5). If the candle pumps to its high and ticks back down, it opens SELL entries. As soon as the *total* profit of the stack reaches its target, every entry is closed together. The stack is also closed together if its total loss reaches the cap, or after 120 s.
+- **Size up after wins:** each winning basket makes the next one 25% bigger (up to 4x); any losing basket resets to 1x.
+- **Pullback mode (option):** one trade per candle. 100 = the live candle's high so far, 0 = its low. BUY when a rising candle pulls back to ~80 and ticks up (target ~95, stop ~62); SELL is the mirror.
+- **Live candle:** timeframe 1m / 2m / 5m / 15m, or Auto (best of 1m and 5m per market).
+- **Scanner:** ranks every Deriv market by candle *instability* (swings per candle, wicks, no one-way trend) and trades only the most unstable ones. Each market card shows the share of past setups that paid in a replay of its last 20 candles.
+- **Execution:** Deriv multiplier contracts on your **demo** account. The basket's total size is chosen so the bounce pays about $1.50 at 1x after costs and the failure point loses at most $3 (both scale with the size multiplier). Deriv's own cost quote is checked before sizing. Each entry also carries a stop loss and take profit held by Deriv, so the stack is protected even if the app closes. The journal records each basket as ONE trade.
+- **Safety:** demo accounts only (real accounts are refused), daily loss limit, per-market cooldown, a cap on basket size, markets with a poor record of real trades are skipped.
 
-- Corrected product branding from **SwarmDesk** to **TradeBrain** in the application header, HTML title, Android app name, Android artifact name, Windows product metadata, and build workflow artifact labels. The Android package ID remains `com.tradebrain.app`.
-- Fixed the shipped-interface visibility issue in the source: the existing `RadarPanel` was implemented in `mission.tsx` but not mounted in the actual Home/Hive screen. It is now mounted on Home without replacing its original scanner logic.
-- Added a separate **Opportunity Watchtower** navigation destination and screen.
-- Added persistent opportunity records in browser local storage, deduplication, status history, expiry, trigger proximity monitoring, invalidation monitoring, source tagging and bounded storage.
-- Connected qualifying Radar candidates to the Watchtower without removing them from Radar's own shortlist or scanner.
-- Connected valid Hive multi-agent WAIT decisions to Watchtower collection when a BUY/SELL direction can be inferred from the agent tally. A WAIT does not authorize an order.
-- Added Watchtower unit tests and included them in `npm test`.
+## Honest caveat
+Synthetic indices are random by design. In a replay on random jump-style data, only about 40-55% of spike setups reached the bounce target, while break-even needs about 63-71%, so the basket method has no proven edge. Judge it on the Journal tab after a few hundred demo baskets (profit factor > 1 after costs).
 
-## Verification performed here
-
-- `npm test`: **151 tests passed, 0 failed** (including the 3 new Watchtower tests).
-- `node --experimental-strip-types --test src/lib/trade/watchtower.test.ts`: **3 passed**.
-- `npm run typecheck`: **not completed** because dependencies could not be installed in this environment (`@types/node` and `vite/client` were unavailable).
-- `npm run build`: **not completed** for the same dependency-install limitation.
-- Android APK / Windows EXE: **not built in this environment**. The GitHub Actions workflows have been renamed to produce TradeBrain-labelled artifacts, but they must run in GitHub to confirm a real APK/EXE.
-
-## Important scope limitation
-
-This is a real source-code implementation of the branding/build correction, original Radar restoration in the actual Home screen, and a first integrated persistent Watchtower. It is **not yet the entirety of every v39 item** in the master specification. In particular, the complete AI per-tranche quantity/stake allocation engine, staged-entry execution state machine, full correlated message/communication trace across every agent, and full counterfactual opportunity-learning pipeline still require further implementation and testing. No claim is made that those unfinished items are complete.
-
-## Install and test
-
-```bash
-npm install
-npm run typecheck
-npm test
-npm run build
-```
-
-Keep trading in paper/demo mode. Live trading remains subject to the existing lock and Risk Guard. A passing test suite does not establish profitability.
+## Develop
+`npm test` runs the strategy tests. `npm run dev` starts the app. Builds: Android APK and Windows EXE via GitHub Actions.
